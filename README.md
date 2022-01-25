@@ -1,4 +1,4 @@
-# my-rune-book
+# Legeno Rune Setter
 A program that can store and load presets for champion rune setting
 
 ## Quickstart
