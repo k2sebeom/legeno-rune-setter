@@ -25,7 +25,7 @@ def on_connect(c):
 
 def on_champ_select(c, e):
     global status
-    status.setText(f'Champion {client.current_champ_name} selected')
+    status.setText(f'Champion {client.current_champ.name} selected')
 
 client.on_connect = on_connect
 client.on_champ_select = on_champ_select
