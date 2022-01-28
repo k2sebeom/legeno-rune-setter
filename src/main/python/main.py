@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QPushButton
 from lcu_client import LCU_Client
 
 
@@ -14,6 +14,9 @@ layout.addWidget(label)
 
 status = QLabel('')
 layout.addWidget(status)
+
+button = QPushButton("Push")
+layout.addWidget(button)
 
 window.setLayout(layout)
 

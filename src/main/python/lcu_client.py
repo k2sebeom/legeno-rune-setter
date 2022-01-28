@@ -31,6 +31,7 @@ class LCU_Client:
 
         self.__champ_dict = dict()
         self.__map_dict = dict()
+        self.__perk_dict = dict()
 
         self.on_connect = lambda c: None
         self.on_champ_select = lambda c, e: None
@@ -46,9 +47,14 @@ class LCU_Client:
             self.on_connect(connection)
 
             champions = await self.connection.request('get', f'/lol-champions/v1/inventories/{self.summoner_id}/champions')
-            self.__champ_dict = await champions.json()
+            for c in await champions.json():
+                self.__champ_dict[c['id']] = c
             maps = await self.connection.request('get', '/lol-maps/v1/maps')
-            self.__map_dict = await maps.json()
+            for m in await maps.json():
+                self.__map_dict[m['id']] = m
+            perks = await connection.request('get', '/lol-perks/v1/perks')
+            for p in await perks.json():
+                self.__perk_dict[p['id']] = p
 
         @self.conn.ws.register('/lol-champ-select/v1/session', event_types=('UPDATE',))
         async def selected(connection, event):
@@ -58,14 +64,20 @@ class LCU_Client:
                 if player['summonerId'] == self.summoner_id:
                     if player['championId'] != self.current_champ.champ_id:
                         await self._set_champion(player['championId'])
+
                         gameflow = await connection.request('get', '/lol-gameflow/v1/session')
                         gameflow_data = await gameflow.json()
                         map_id = gameflow_data['gameData']['queue']['mapId']
-                        for m in self.__map_dict:
-                            if m['id'] == map_id:
-                                self.current_map = GameMap(m['id'], m['name'], m['gameMode'])
-                                break
+                        m = self.__map_dict[map_id]
+                        self.current_map = GameMap(m['id'], m['name'], m['gameMode'])
+
                         self.on_champ_select(connection, event)
+
+                        page = await connection.request('get', '/lol-perks/v1/currentpage')
+                        page = await page.json()
+                        for p in page['selectedPerkIds']:
+                            print(self.__perk_dict[p]['name'])
+                        print("====")
                     break
 
         @self.conn.close
@@ -74,10 +86,9 @@ class LCU_Client:
             self.on_close(connection)
 
     async def _set_champion(self, champ_id):
-        for c in self.__champ_dict:
-            if c['id'] == champ_id:
-                self.current_champ = Champion(c['id'], c['alias'], c['name'])
-                break
+        c = self.__champ_dict.get(champ_id, None)
+        if c is not None:
+            self.current_champ = Champion(c['id'], c['alias'], c['name'])
 
     def start(self):
         self.__runner = Thread(target=self.__run_connection, daemon=True)
