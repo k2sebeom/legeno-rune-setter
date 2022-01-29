@@ -1,7 +1,10 @@
+from marshal import loads
 from lcu_driver import Connector
 import json
 import urllib.request as ur
 from threading import Thread
+
+from rune_loader import RuneLoader
 
 
 class Champion:
@@ -23,6 +26,7 @@ class LCU_Client:
         self.__runner = None
         self.connection = None
         self.conn = Connector()
+        self.loader = RuneLoader()
 
         self.summoner_id = 0
         self.summoner_name = ""
@@ -71,13 +75,20 @@ class LCU_Client:
                         m = self.__map_dict[map_id]
                         self.current_map = GameMap(m['id'], m['name'], m['gameMode'])
 
+                        runes = self.loader.get_runes(self.current_champ.alias)
+
+                        if runes is not None:
+                            resp = await connection.request('get', '/lol-perks/v1/currentpage')
+                            current_page = await resp.json()
+                            current_page['name'] = runes['name']
+                            resp = await connection.request('post', f'/lol-perks/v1/pages', data=current_page)
                         self.on_champ_select(connection, event)
 
-                        page = await connection.request('get', '/lol-perks/v1/currentpage')
-                        page = await page.json()
-                        for p in page['selectedPerkIds']:
-                            print(self.__perk_dict[p]['name'])
-                        print("====")
+                        # page = await connection.request('get', '/lol-perks/v1/currentpage')
+                        # page = await page.json()
+                        # for p in page['selectedPerkIds']:
+                        #     print(p)
+                        # print("====")
                     break
 
         @self.conn.close
