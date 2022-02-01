@@ -1,5 +1,5 @@
 import tkinter as tk
-
+from PIL import Image, ImageTk
 
 class MainApplication(tk.Tk):
 
@@ -48,13 +48,19 @@ class MainApplication(tk.Tk):
         _new_rune_page_button.grid(row=0, column=3, sticky='nsew')
         _trash_button.grid(row=0, column=4, sticky='nsew')
 
-
-
-
-
-
-        # Bottom
+        # Bottom Left
         _left_runes.grid(row=1, column=0, sticky='nsew')
+        _left_runes.rowconfigure(0, weight=1)
+        _left_runes.columnconfigure(0, weight=1)
+        # ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+        _img = ImageTk.PhotoImage(Image.open("../resources/precision/Press_the_Attack_rune.png"))
+        _rounded_button = tk.Button(_left_runes, image=_img)
+        _rounded_button.photo = _img
+        # _rounded_button["bg"] = "white"
+        # _rounded_button["border"] = "0"
+        _rounded_button.grid(row=0, column=0)
+
+        # Bottom Right
         _right_runes.grid(row=1, column=1, sticky='nsew')
 
         # TODO: might be better if toolbar, left_runes, and right_runes are separate objects, and widgets are attributes
