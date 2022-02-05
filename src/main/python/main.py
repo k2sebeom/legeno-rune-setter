@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout, QPushButton
 from lcu_client import LCU_Client
 
 
@@ -15,6 +15,9 @@ layout.addWidget(label)
 status = QLabel('')
 layout.addWidget(status)
 
+button = QPushButton("Push")
+layout.addWidget(button)
+
 window.setLayout(layout)
 
 window.show()
@@ -25,7 +28,7 @@ def on_connect(c):
 
 def on_champ_select(c, e):
     global status
-    status.setText(f'Champion {client.current_champ_name} selected')
+    status.setText(f'Champion {client.current_champ.name} selected')
 
 client.on_connect = on_connect
 client.on_champ_select = on_champ_select
